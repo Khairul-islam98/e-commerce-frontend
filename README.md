@@ -1,6 +1,6 @@
-# Tech Tips Hub Frontend
+# Shop Hub Frontend
 
-This project is a sample implementation of a Tech Tips Hub application using Typescript, Nextjs, Axios, TanStack Query, Next Auth,  Node.js, Express, and MongoDB.
+This project is a sample implementation of a Shop Hub application using Typescript, Nextjs, redux, shadcn framer-motion, Node.js, Express, and prisma orm.
 
 ---
 
@@ -19,22 +19,17 @@ https://shophub-eight.vercel.app
 - news feed page with all the latest news 
 - post details page with post details and comments section
 - profile page with user information and user reservation information
-- dashboard page admin/user all page and information
-- about us page with company information, Team membar information, mission, and vision
-- contact us page with contact information and contact form
+- dashboard page admin / vendor all page and information
 
 ---
 
 ## Technologies Used
 
 - Nextjs
-- Axios
-- TanStack Query
-- NextAuth
+- Redux
 - Typescript
 - Tailwind css
 - Shadcn
-- Quill js
 - framer-motion
 - Cloudinary
 
@@ -56,24 +51,20 @@ user password: 123456
 1. Clone the repository
 
 ```
-https://github.com/Khairul-islam98/tech-tips-hub-frontend.git
+https://github.com/Khairul-islam98/e-commerce-frontend.git
 ```
 
 2. Project open
 
 ```
-cd tech-tips-hub-frontend
+cd e-commerce-frontend
 
 ```
 3. Create a .env.local file in the root directory of the project and add the following environment variables
 
 ```
 NEXT_PUBLIC_BASE_API=
-NEXTAUTH_SECRET=
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-NEXT_CLOUDINARY_CLOUD_NAME=
-NEXT_CLOUDINARY_UPLOAD_PRESET=
+
 
 ```
 

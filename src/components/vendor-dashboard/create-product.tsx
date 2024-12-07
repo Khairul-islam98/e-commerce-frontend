@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState } from "react";
 import { useGetAllCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useCreateProductMutation } from "@/redux/features/product/productApi";
@@ -6,97 +6,63 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useAppSelector } from "@/redux/hooks";
 import { useGetMyShopQuery } from "@/redux/features/shop/shopApi";
-import {
-  ImagePlus,
-} from "lucide-react";
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
 
 export const CreateProduct = () => {
   const { data: categories, isLoading } = useGetAllCategoriesQuery({});
-  const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
+  const [createProduct] = useCreateProductMutation();
   const { user } = useAppSelector((state) => state.auth);
   const { data: shopData } = useGetMyShopQuery(user?.id);
 
+  // Form State
   const {
     register,
-    control,
     handleSubmit,
     formState: { errors },
-    reset
-  } = useForm({
-    defaultValues: {
-      name: "",
-      description: "",
-      categoryId: "",
-      stock: 1,
-      price: 0,
-      discount: 0
-    }
-  });
+  } = useForm();
 
   const shopId = shopData?.data?.id;
 
+  // Local state for colors and sizes
   const [colors, setColors] = useState<{ name: string; value: string }[]>([]);
   const [sizes, setSizes] = useState<{ name: string; value: string }[]>([]);
-  const [images, setImages] = useState<File[]>([]); // Updated to allow multiple images
-  const [previewImages, setPreviewImages] = useState<string[]>([]); // Updated for multiple image previews
-  const [stock, setStock] = useState(1);
+
+  // State for image file
+  const [image, setImage] = useState<File | null>(null);
 
   const onSubmit = async (data: any) => {
     try {
-      if (images.length === 0) {
-        toast.error("Please upload at least one image", {
-          description: "Images are required for the product."
-        });
+      // Validate image
+      if (!image) {
+        toast.error("Please upload an image");
         return;
       }
 
       const formData = new FormData();
       const productData = {
         ...data,
-        stock: Number(data.stock),
-        price: Number(data.price),
-        discount: Number(data.discount), // Ensure the discount is included
+        stock: Number(data.stock), // Convert stock to a number
+        price: Number(data.price), // Convert price to a number
+        discount: Number(data.discount),
         colors,
         sizes,
         shopId,
         rating: 5,
       };
 
-      // Append each image to FormData
-      images.forEach(image => formData.append("images", image));
+      console.log("Selected Image:", image);
 
+      formData.append("image", image);
       formData.append("data", JSON.stringify(productData));
 
-      const response = await createProduct(formData).unwrap();
-      toast.success("Product Created", {
-        description: `${data.name} has been successfully added to your shop.`
-      });
-      
-      // Reset form after successful submission
-      reset();
-      setColors([]);
-      setSizes([]);
-      setImages([]);
-      setPreviewImages([]);
-      setStock(1);
-    } catch (error) {
-      toast.error("Product Creation Failed", {
-        description: "Please check your input and try again."
-      });
-    }
-  };
+      console.log([...formData]);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      const fileArray = Array.from(files);
-      setImages(fileArray);
-      const filePreviews = fileArray.map(file => URL.createObjectURL(file));
-      setPreviewImages(filePreviews);
+      const response = await createProduct(formData).unwrap();
+      console.log({ response });
+      toast.success("Product created successfully");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to create product");
     }
   };
 
@@ -121,196 +87,81 @@ export const CreateProduct = () => {
     setSizes(newSizes);
   };
 
-  const renderInputField = (
-    id: string, 
-    label: string, 
-    type: string, 
-    registerOptions: any, 
-    placeholder: string
-  ) => (
-    <div className="space-y-1">
-      <label 
-        htmlFor={id} 
-        className="block text-sm font-medium text-gray-700"
-      >
-        {label}
-      </label>
-      <input
-        id={id}
-        type={type}
-        placeholder={placeholder}
-        {...register(id, registerOptions)}
-        className={`
-          w-full px-4 py-2 rounded-lg border 
-          ${errors[id] 
-            ? 'border-red-500 focus:ring-red-500' 
-            : 'border-gray-300 focus:border-indigo-500'
-          }
-          focus:outline-none focus:ring-2 focus:ring-opacity-50 
-          transition duration-300 ease-in-out
-        `}
-      />
-      {errors[id] && (
-        <p className="text-red-500 text-xs mt-1">
-          {label} is required
-        </p>
-      )}
-    </div>
-  );
+  // Handler for image upload
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      setImage(files[0]);
+    }
+  };
 
-  if (isLoading) return (
-    <div className="flex justify-center items-center h-screen">
-      <p>Loading categories...</p>
-    </div>
-  );
+  if (isLoading) return <p>Loading categories...</p>;
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <div className="bg-white shadow-xl rounded-2xl p-8">
-        <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
-          Create New Product
-        </h1>
-        
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Image Upload with Preview */}
-          <div className="flex flex-col items-center space-y-4">
-            {previewImages.length > 0 ? (
-              previewImages.map((image, index) => (
-                <img
-                  key={index}
-                  src={image}
-                  alt="Product Preview"
-                  className="w-48 h-48 object-cover rounded-lg shadow-md mb-2"
-                />
-              ))
-            ) : (
-              <div className="w-48 h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center">
-                <ImagePlus className="text-gray-400" size={48} />
-                <span className="text-gray-500 mt-2">Upload Images</span>
-              </div>
-            )}
-            <input
-              id="image"
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageUpload}
-              className="hidden"
-            />
-          </div>
+    <div className="container mx-auto p-6 max-w-xl">
+      <h1 className="text-2xl font-bold mb-6 text-center">Create Product</h1>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Product Name */}
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium">
+            Product Name
+          </label>
+          <input
+            id="name"
+            type="text"
+            placeholder="Enter product name"
+            {...register("name", { required: true })}
+            className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          {errors.name && (
+            <p className="text-red-500 text-sm">Product name is required</p>
+          )}
+        </div>
 
-          {/* Main Product Details */}
-          <div className="grid md:grid-cols-2 gap-4">
-            {renderInputField(
-              "name", 
-              "Product Name", 
-              "text", 
-              { required: true }, 
-              "Enter product name"
-            )}
-            
-            {renderInputField(
-              "price", 
-              "Price", 
-              "number", 
-              { 
-                required: true, 
-                min: { value: 0, message: "Price must be positive" } 
-              }, 
-              "Enter price"
-            )}
-          </div>
+        {/* Product Description */}
+        <div>
+          <label htmlFor="description" className="block text-sm font-medium">
+            Product Description
+          </label>
+          <textarea
+            id="description"
+            placeholder="Enter product description"
+            {...register("description", { required: true })}
+            className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          {errors.description && (
+            <p className="text-red-500 text-sm">Description is required</p>
+          )}
+        </div>
 
-          {/* Discount Field */}
-          <div className="space-y-1">
-            <label 
-              htmlFor="discount" 
-              className="block text-sm font-medium text-gray-700"
-            >
-              Discount (%)
-            </label>
-            <input
-              id="discount"
-              type="number"
-              placeholder="Enter discount percentage"
-              {...register("discount", { required: false, min: 0 })}
-              className={`
-                w-full px-4 py-2 rounded-lg border 
-                ${errors.discount 
-                  ? 'border-red-500 focus:ring-red-500' 
-                  : 'border-gray-300 focus:border-indigo-500'
-                }
-                focus:outline-none focus:ring-2 focus:ring-opacity-50 
-                transition duration-300 ease-in-out
-              `}
-            />
-          </div>
+        {/* Product Category */}
+        <div>
+          <label htmlFor="category" className="block text-sm font-medium">
+            Product Category
+          </label>
+          <select
+            id="category"
+            {...register("categoryId", { required: true })}
+            className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="">Select category</option>
+            {categories?.data?.map((category: any) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+          {errors.categoryId && (
+            <p className="text-red-500 text-sm">Category is required</p>
+          )}
+        </div>
 
-          {/* Category Select - ShadCN Select */}
-          <div className="space-y-1">
-            <label htmlFor="categoryId" className="block text-sm font-medium text-gray-700">
-              Category
-            </label>
-            <Select {...register('categoryId', { required: true })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories?.data?.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.categoryId && (
-              <p className="text-red-500 text-xs mt-1">Category is required</p>
-            )}
-          </div>
-
-          {/* Description and Category */}
-          <div>
-            <label 
-              htmlFor="description" 
-              className="block text-sm font-medium text-gray-700"
-            >
-              Product Description
-            </label>
-            <textarea
-              id="description"
-              placeholder="Describe your product"
-              {...register("description", { required: true })}
-              className={`
-                w-full px-4 py-2 rounded-lg border min-h-[100px]
-                ${errors.description 
-                  ? 'border-red-500 focus:ring-red-500' 
-                  : 'border-gray-300 focus:border-indigo-500'
-                }
-                focus:outline-none focus:ring-2 focus:ring-opacity-50 
-                transition duration-300 ease-in-out
-              `}
-            />
-            {errors.description && (
-              <p className="text-red-500 text-xs mt-1">
-                Description is required
-              </p>
-            )}
-          </div>
-
-          {/* Colors and Sizes */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Colors</label>
-            <button
-              type="button"
-              onClick={handleAddColor}
-              className="mt-2 text-indigo-600 hover:text-indigo-700"
-            >
-              Add Color
-            </button>
-            <div className="mt-2">
-            {colors.map((color, index) => (
+        {/* Colors */}
+        <div>
+          <label className="block text-sm font-medium">Product Colors</label>
+          {colors.map((color, index) => (
             <div key={index} className="flex items-center space-x-2">
-              <Input
+              <input
                 type="text"
                 placeholder="Color name"
                 value={color.name}
@@ -319,8 +170,9 @@ export const CreateProduct = () => {
                   updatedColors[index].name = e.target.value;
                   setColors(updatedColors);
                 }}
+                className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
-              <Input
+              <input
                 type="color"
                 value={color.value}
                 onChange={(e) => {
@@ -328,31 +180,32 @@ export const CreateProduct = () => {
                   updatedColors[index].value = e.target.value;
                   setColors(updatedColors);
                 }}
+                className="w-12 h-12 rounded-full border border-gray-300 focus:outline-none"
               />
-              <Button onClick={() => handleRemoveColor(index)} variant="destructive">
+              <button
+                type="button"
+                onClick={() => handleRemoveColor(index)}
+                className="text-red-500"
+              >
                 Remove
-              </Button>
+              </button>
             </div>
           ))}
-          <Button onClick={handleAddColor} variant="outline" className="mt-2">
+          <button
+            type="button"
+            onClick={handleAddColor}
+            className="text-blue-500 mt-2"
+          >
             Add Color
-          </Button>
-            </div>
-          </div>
+          </button>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Sizes</label>
-            <button
-              type="button"
-              onClick={handleAddSize}
-              className="mt-2 text-indigo-600 hover:text-indigo-700"
-            >
-              Add Size
-            </button>
-            <div className="mt-2">
-            {sizes.map((size, index) => (
+        {/* Sizes */}
+        <div>
+          <label className="block text-sm font-medium">Product Sizes</label>
+          {sizes.map((size, index) => (
             <div key={index} className="flex items-center space-x-2">
-              <Input
+              <input
                 type="text"
                 placeholder="Size name"
                 value={size.name}
@@ -361,8 +214,9 @@ export const CreateProduct = () => {
                   updatedSizes[index].name = e.target.value;
                   setSizes(updatedSizes);
                 }}
+                className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
-              <Input
+              <input
                 type="text"
                 placeholder="Size value (e.g., S, M, L)"
                 value={size.value}
@@ -371,50 +225,104 @@ export const CreateProduct = () => {
                   updatedSizes[index].value = e.target.value;
                   setSizes(updatedSizes);
                 }}
+                className="w-20 px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
-              <Button onClick={() => handleRemoveSize(index)} variant="destructive">
+              <button
+                type="button"
+                onClick={() => handleRemoveSize(index)}
+                className="text-red-500"
+              >
                 Remove
-              </Button>
+              </button>
             </div>
           ))}
-          <Button onClick={handleAddSize} variant="outline" className="mt-2">
+          <button
+            type="button"
+            onClick={handleAddSize}
+            className="text-blue-500 mt-2"
+          >
             Add Size
-          </Button>
-            </div>
-          </div>
+          </button>
+        </div>
 
-          {/* Stock */}
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">Stock</label>
-            <input
-              type="number"
-              value={stock}
-              onChange={(e) => setStock(Number(e.target.value))}
-              min="1"
-              className="w-full px-4 py-2 rounded-lg border focus:border-indigo-500 focus:ring-2 focus:ring-opacity-50 transition duration-300 ease-in-out"
-            />
-          </div>
+        {/* Stock */}
+        <div>
+          <label htmlFor="stock" className="block text-sm font-medium">
+            Stock
+          </label>
+          <input
+            id="stock"
+            type="number"
+            placeholder="Enter stock"
+            {...register("stock", { required: true })}
+            className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          {errors.stock && (
+            <p className="text-red-500 text-sm">Stock is required</p>
+          )}
+        </div>
+        <div>
+          <label htmlFor="price" className="block text-sm font-medium">
+            Price
+          </label>
+          <input
+            id="price"
+            type="number"
+            placeholder="Enter price"
+            {...register("price", { required: true })}
+            className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          {errors.price && (
+            <p className="text-red-500 text-sm">Price is required</p>
+          )}
+        </div>
 
-          {/* Submit Button */}
-          <div className="text-center mt-6">
-            <button
-              type="submit"
-              disabled={isCreating}
-              className={`
-                px-8 py-3 rounded-full text-white font-semibold 
-                transition duration-300 ease-in-out
-                ${isCreating 
-                  ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-indigo-600 hover:bg-indigo-700'
-                }
-              `}
-            >
-              {isCreating ? 'Creating...' : 'Create Product'}
-            </button>
-          </div>
-        </form>
-      </div>
+        {/* Discount */}
+        <div>
+          <label htmlFor="discount" className="block text-sm font-medium">
+            Discount (%)
+          </label>
+          <input
+            id="discount"
+            type="number"
+            placeholder="Enter discount"
+            {...register("discount", { required: true })}
+            className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          {errors.discount && (
+            <p className="text-red-500 text-sm">Discount is required</p>
+          )}
+        </div>
+
+        {/* Image Upload */}
+        <div>
+          <label htmlFor="image" className="block text-sm font-medium">
+            Product Image
+          </label>
+          <input
+            id="image"
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          {image && (
+            <p className="text-green-500 mt-1">Image selected: {image.name}</p>
+          )}
+        </div>
+
+        {/* Submit Button */}
+        <div className="text-center">
+          <button
+            type="submit"
+            className="px-6 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-all duration-300"
+          >
+            Create Product
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
 
+export default CreateProduct;
