@@ -1,3 +1,4 @@
+import { IconType } from "react-icons";
 export interface IColor {
   id: string;
   productId: string;
@@ -83,4 +84,26 @@ export interface ICart {
   shopName: string;
   discount?: number;
   isOutOfStock: boolean;
+}
+
+export interface ICheckout {
+  productId: string;
+  quantity: number;
+  colorId: string;
+  sizeId: string;
+  colorName: string;
+  sizeName: string;
+  price: number;
+  image: string;
+  name: string;
+  shopId: string;
+  shopName: string;
+  discount?: number;
+}
+
+export interface NavItem {
+  children?: NavItem[];
+  href: string;
+  title: string;
+  Icon: IconType;
 }

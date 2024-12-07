@@ -16,7 +16,35 @@ const shopApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["shop"],
     }),
+    getPrioritizeShop: builder.query({
+      query: () => ({
+        url: "/shop",
+        method: "GET",
+      }),
+      providesTags: ["shop"],
+    }),
+    getMyShop: builder.query({
+      query: () => ({
+        url: "/shop/my-shop",
+        method: "GET",
+      }),
+      providesTags: ["shop"],
+    }),
+    updateShop: builder.mutation({
+      query: (payload) => ({
+        url: "/shop/update",
+        method: "PATCH",
+        body: payload,
+      }),
+      invalidatesTags: ["shop"],
+    }),
   }),
 });
 
-export const { useGetShopByIdQuery, useFollowingsShopMutation } = shopApi;
+export const {
+  useGetShopByIdQuery,
+  useFollowingsShopMutation,
+  useGetPrioritizeShopQuery,
+  useGetMyShopQuery,
+  useUpdateShopMutation,
+} = shopApi;

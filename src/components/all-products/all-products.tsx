@@ -14,7 +14,7 @@ export const AllProducts = ({
       <Suspense
         fallback={
           <div className="w-full flex flex-col gap-[15px]">
-            <div className="gridResponsive w-full gap-[10px] sm:gap-[20px] justify-center">
+            <div className="gridView w-full gap-[10px] sm:gap-[20px] justify-center">
               <ProductSkeleton />
               <ProductSkeleton />
               <ProductSkeleton />

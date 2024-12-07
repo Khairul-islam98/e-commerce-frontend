@@ -11,6 +11,7 @@ import envConfig from "@/config/env-config";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { useState } from "react";
+import { addToCheckout } from "@/redux/features/checkout/chekoutSlice";
 
 export const CartItem = () => {
   const { items, total } = useAppSelector((state) => state.cart);
@@ -78,7 +79,7 @@ export const CartItem = () => {
         ...item,
       }));
 
-    dispatch(addItemsToCheckout(checkoutItems));
+    dispatch(addToCheckout(checkoutItems));
     router.push("/checkout");
   };
 

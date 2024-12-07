@@ -67,7 +67,7 @@ export const UserProfile = () => {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               {user && user.role === "ADMIN" ? (
-                <Link href="/dashboard">
+                <Link href="/dashboard/admin">
                   <DropdownMenuItem className="cursor-pointer">
                     <LayoutDashboard className="mr-2 h-4 w-4" />
                     <span>Dashboard</span>
@@ -75,7 +75,7 @@ export const UserProfile = () => {
                 </Link>
               ) : user.role === "VENDOR" ? (
                 <>
-                  <Link href="/vendor/dashboard">
+                  <Link href="/dashboard/vendor">
                     <DropdownMenuItem className="cursor-pointer">
                       <Store className="mr-2 h-4 w-4" />
                       <span>Vendor Dashboard</span>

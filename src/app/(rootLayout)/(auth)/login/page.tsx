@@ -18,6 +18,11 @@ import { useAppDispatch } from "@/redux/hooks";
 import { verifyToken } from "@/utils/verifyToken";
 import { setUser } from "@/redux/features/auth/authSlice";
 import Cookies from "js-cookie";
+import { JwtPayload } from "jsonwebtoken";
+
+interface CustomJwtPayload extends JwtPayload {
+  role?: string;
+}
 
 const LoginPage = () => {
   const [login] = useLoginMutation()
@@ -41,11 +46,18 @@ const LoginPage = () => {
         password: data.password
       }
       const res = await login(userInfo).unwrap()
-      const user = verifyToken(res.data.accessToken)
+      const user = verifyToken(res.data.accessToken) as CustomJwtPayload
       
       dispatch(setUser({user: user, token: res.data.accessToken}))
       Cookies.set('refreshToken', res.data.refreshToken, {expires: 60})
       setError('')
+      if(user.role === "ADMIN"){
+        router.push('/dashboard/admin')
+      }else if(user.role === "VENDOR"){
+        router.push('/dashboard/vendor')
+      }else{
+        router.push('/')
+      }
     } catch (error) {
       if ((error as any).data && typeof (error as any).data.message === 'string') {
         setError((error as any).data.message);

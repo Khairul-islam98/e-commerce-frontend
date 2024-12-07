@@ -11,11 +11,14 @@ interface IProps {
 }
 
 export const ShopHeader: React.FC<IProps> = ({ shopId }) => {
+
   const { data, isLoading } = useGetShopByIdQuery(shopId);
 
   const { user } = useAppSelector((state) => state.auth);
 
   const avatarFallback = data?.data.name.charAt(0);
+
+
 
   return (
     <>

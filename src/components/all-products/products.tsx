@@ -98,7 +98,7 @@ export const Products = ({
 
   return (
     <div className="w-full flex flex-col gap-[15px]">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="gridView gap-[15px]">
         {products.map((product, idx) => (
           <ProductCard key={idx} product={product} />
         ))}

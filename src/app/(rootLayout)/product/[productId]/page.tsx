@@ -5,7 +5,7 @@ interface PageProps {
   }
   
   export default async function ProductDetailsPage({ params }: PageProps)  {
-    const { productId } = await params;
+    const { productId } =  params;
 
 
     

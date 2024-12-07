@@ -34,9 +34,9 @@ export const Navbar = () => {
           <Image
             width={50}
             height={50}
-            src="/image/shop.png"
+            src="/image/Shop.png"
             alt="ferox logo"
-            className="w-12 h-12 object-contain md:ml-10"
+            className="w-[50px] object-contain md:ml-10"
           />
         </Link>
 

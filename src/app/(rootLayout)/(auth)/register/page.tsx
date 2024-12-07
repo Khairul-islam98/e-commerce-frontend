@@ -27,14 +27,20 @@ import { verifyToken } from "@/utils/verifyToken";
 import { setUser } from "@/redux/features/auth/authSlice";
 import Cookies from "js-cookie";
 
+import { JwtPayload } from "jsonwebtoken";
+
+interface CustomJwtPayload extends JwtPayload {
+  role?: string;
+}
+
 const RegisterPage = () => {
-  const [createUser] = useSignupMutation()
+  const [createUser] = useSignupMutation();
   const dispatch = useAppDispatch();
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
   const [image, setImage] = useState<File | null>(null);
-  
+
 
   const {
     control,
@@ -48,41 +54,47 @@ const RegisterPage = () => {
   const onSubmit: SubmitHandler<FieldValues> = async (value) => {
     try {
       const formData = new FormData();
-      
+
       const userInfo = {
         email: value.email,
         password: value.password,
         name: value.name,
         role: value.role,
       };
-  
+
       formData.append("data", JSON.stringify(userInfo));
-  
       if (image) {
         formData.append("image", image);
       }
-  
+
       const res = await createUser(formData).unwrap();
-      const user = verifyToken(res.data.accessToken)
-      
-      dispatch(setUser({user: user, token: res.data.accessToken}))
-      Cookies.set('refreshToken', res.data.refreshToken, {expires: 60})
-      setError('');
-      // router.push('/login');
+      const user = verifyToken(res.data.accessToken) as CustomJwtPayload;
+      console.log("user", { user });
+
+      dispatch(setUser({ user: user, token: res.data.accessToken }) ) 
+      Cookies.set("refreshToken", res.data.refreshToken, { expires: 60 });
+      setError("");
+      if (user?.role === "VENDOR") {
+        router.push("/dashboard/vendor");
+      } else {
+        router.push("/");
+      }
     } catch (error) {
-      if ((error as any).data && typeof (error as any).data.message === 'string') {
+      if (
+        (error as any).data &&
+        typeof (error as any).data.message === "string"
+      ) {
         setError((error as any).data.message);
       } else {
-        setError('An unexpected error occurred');
+        setError("An unexpected error occurred");
       }
-      
     }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (e.target.files) {
-      const files = (e.target.files);
+      const files = e.target.files;
       setImage(files[0]);
     }
   };
@@ -133,7 +145,6 @@ const RegisterPage = () => {
                     Select Image:
                   </Label>
                   <input
-             
                     type="file"
                     onChange={handleImageChange}
                     className="w-full"
@@ -166,7 +177,9 @@ const RegisterPage = () => {
                   <div className="relative">
                     <Input
                       type={`${isShowPassword ? "text" : "password"}`}
-                      {...register("password", { required: "Password is required" })}
+                      {...register("password", {
+                        required: "Password is required",
+                      })}
                       id="password"
                       placeholder="Password"
                       className="w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-rose-500 bg-gray-200 text-gray-900"
@@ -187,20 +200,20 @@ const RegisterPage = () => {
                 </div>
               </div>
               <div>
-              <Controller
+                <Controller
                   name="role"
                   control={control}
                   defaultValue="CUSTOMER"
                   render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className="bg-white text-black">
-                      <SelectValue placeholder="User" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="CUSTOMER">User</SelectItem>
-                      <SelectItem value="VENDOR">Vendor</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className="bg-white text-black">
+                        <SelectValue placeholder="User" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="CUSTOMER">User</SelectItem>
+                        <SelectItem value="VENDOR">Vendor</SelectItem>
+                      </SelectContent>
+                    </Select>
                   )}
                 />
               </div>

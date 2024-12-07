@@ -12,6 +12,7 @@ import {
   REGISTER,
 } from "redux-persist";
 import cartReducer from "./features/cart/cartSlice";
+import checkoutReducer from "./features/checkout/chekoutSlice";
 
 import storage from "redux-persist/lib/storage";
 
@@ -30,6 +31,7 @@ export const store = configureStore({
     [baseApi.reducerPath]: baseApi.reducer,
     auth: persistedAuthReducer,
     cart: persistedCartReducer,
+    checkout: checkoutReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
