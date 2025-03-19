@@ -11,7 +11,6 @@ export default function Error({
   error: Error & { digest?: string };
 
 
-  // Add the following type definition
   reset: () => void;
 }) {
   useEffect(() => {
