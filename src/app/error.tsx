@@ -9,6 +9,9 @@ export default function Error({
   reset,
 }: {
   error: Error & { digest?: string };
+
+
+  // Add the following type definition
   reset: () => void;
 }) {
   useEffect(() => {
