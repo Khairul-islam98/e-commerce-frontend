@@ -15,6 +15,9 @@ import {
 export function ModeToggle() {
   const { setTheme } = useTheme()
 
+
+  // Add the following code snippet to the ModeToggle component:
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
