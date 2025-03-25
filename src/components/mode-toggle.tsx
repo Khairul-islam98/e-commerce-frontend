@@ -15,10 +15,7 @@ import {
 export function ModeToggle() {
   const { setTheme } = useTheme()
 
-  // Add the following code snippet to the ModeToggle component:
 
-
-  // Add the following code snippet to the ModeToggle component:
 
   return (
     <DropdownMenu>
