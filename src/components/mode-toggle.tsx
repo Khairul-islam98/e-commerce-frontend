@@ -15,7 +15,7 @@ import {
 export function ModeToggle() {
   const { setTheme } = useTheme()
 
-//  const [theme, setTheme] = React.useState("light")
+
 
   return (
     <DropdownMenu>
