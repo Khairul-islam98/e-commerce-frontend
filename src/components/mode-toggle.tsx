@@ -15,6 +15,7 @@ import {
 export function ModeToggle() {
   const { setTheme } = useTheme()
 
+  // This is a workaround for the issue where the theme is not set correctly on the first render
 
   return (
     <DropdownMenu>
