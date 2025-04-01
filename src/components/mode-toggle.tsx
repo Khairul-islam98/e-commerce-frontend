@@ -16,7 +16,7 @@ export function ModeToggle() {
   const { setTheme } = useTheme()
 
   // This is a workaround for the issue where the theme is not set correctly on the first render
-  // because the theme is set in a useEffect hook. This causes a flicker on the first render.
+  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
