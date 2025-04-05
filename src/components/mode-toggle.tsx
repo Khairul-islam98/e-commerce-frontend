@@ -16,7 +16,7 @@ export function ModeToggle() {
   const { setTheme } = useTheme()
 
  
-  
+  // hhook to handle the theme change
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
